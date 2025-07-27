@@ -11,7 +11,7 @@
 #include "secrets.h"
 
 #define DEBUG
-// Определение пина для светодиода
+// LED pin definition
 const int ledPin = 2;
 
 #define DC_DC_EN D8
@@ -34,7 +34,7 @@ const int ledPin = 2;
 Adafruit_MCP4725 dac;
 
 FastBot bot(BOT_TOKEN);
-#define TelegramDdosTimeout 5000 // таймаут
+#define TelegramDdosTimeout 5000 // timeout
 // unsigned long bot_lasttime; // last time messages' scan has been done
 bool Start = false;
 const unsigned long BOT_MTBS = 3600; // mean time between scan messages
@@ -43,9 +43,9 @@ WiFiClient wclient;
 PubSubClient client(wclient);
 
 HTTPClient http; // Create Object of HTTPClient
-int httpCode;    // код ответа сервера
-String payload;  // строка ответ сервера
-String error;    // расшифровка кода ошибки
+int httpCode;    // server response code
+String payload;  // server response string
+String error;    // error code description
 
 bool restart = 0;
 unsigned long uptime;
@@ -57,8 +57,8 @@ Adafruit_NeoPixel strip(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
 
 // const int pwmPin = D4;
 // const int pwmPin2 = D0;
-// const int pwmFrequency = 10000; // Частота ШИМ в герцах
-// const int pwmResolution = 8;    // Разрешение ШИМ (8 бит)
+// const int pwmFrequency = 10000; // PWM frequency in Hz
+// const int pwmResolution = 8;    // PWM resolution (8 bit)
 volatile int encoderPos = 0;
 volatile boolean encoderButtonPressed = false;
 volatile boolean encoderButtonReleased = false;
@@ -66,7 +66,7 @@ volatile boolean encoderButtonReleased = false;
 int bright = 0; // TODO
 int bright_temp;
 
-// int light = 0;  // яркость LED ленты, от 0 до MAX_DAC
+// int light = 0;  // LED strip brightness, from 0 to MAX_DAC
 bool PowerON = false;
 
 int State = STATE_OFF;
@@ -95,12 +95,12 @@ void set_DAC(int br)
   if (br < 0)
     br = 0;
 
-  float normalizedValue = br / float(4095);                         // Нормализация значения от 0 до 1
-  float correctedValue = pow(normalizedValue, GAMMA) * float(4095); // Применение гамма-коррекции
+  float normalizedValue = br / float(4095);                         // Normalize value from 0 to 1
+  float correctedValue = pow(normalizedValue, GAMMA) * float(4095); // Apply gamma correction
 
-  temp = 4095 - correctedValue; // инвертируем bright
+  temp = 4095 - correctedValue; // invert bright
 
-  temp2 = map(temp, 0, 4095, MIN_DAC, MAX_DAC); // масштабируем
+  temp2 = map(temp, 0, 4095, MIN_DAC, MAX_DAC); // scale
 
   temp3 = int(temp2); //
 
@@ -128,7 +128,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 
   if (strncmp(topic, topic_in, strlen(topic_in)) == 0)
   {
-    if (message == "LIGHT_ON") // включить
+    if (message == "LIGHT_ON") // turn on
     {
       client.publish(topic_out, "PowerON");
       PowerON = true;
@@ -143,7 +143,7 @@ void callback(char *topic, byte *payload, unsigned int length)
       bright_temp = bright;
     }
 
-    if (message == "LIGHT_OFF") // выключить
+    if (message == "LIGHT_OFF") // turn off
     {
       client.publish(topic_out, "PowerOFF");
       PowerON = false;
@@ -154,7 +154,7 @@ void callback(char *topic, byte *payload, unsigned int length)
       bright_temp = bright;
     }
 
-    if (message == "Status") // запрос состояния
+    if (message == "Status") // status request
     {
       if (PowerON)
         client.publish(topic_out, "PowerON");
